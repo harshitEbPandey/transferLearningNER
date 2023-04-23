@@ -1,0 +1,177 @@
+Baseline performance of CRF on Hindi train and Hindi test dataset - 
+Weighted F1 of CRF = 0.9089
+              precision    recall  f1-score   support
+
+           1      0.927     0.874     0.900       247
+           2      0.956     0.969     0.962       223
+           3      0.879     0.853     0.866       231
+           4      0.932     0.932     0.932       237
+           5      0.946     0.839     0.889       273
+           6      0.915     0.904     0.909        83
+
+   micro avg      0.928     0.892     0.909      1294
+   macro avg      0.926     0.895     0.910      1294
+weighted avg      0.928     0.892     0.909      1294
+
+
+================================================================
+
+Baseline performance of CRF on Telugu train and Telugu test dataset - 
+Weighted F1 of CRF = 0.8231
+              precision    recall  f1-score   support
+
+           1      0.890     0.789     0.836       298
+           2      0.891     0.920     0.905       275
+           3      0.764     0.651     0.703       129
+           4      0.805     0.874     0.838       151
+           5      0.908     0.678     0.777       205
+           6      0.850     0.586     0.694        29
+
+   micro avg      0.864     0.791     0.826      1087
+   macro avg      0.851     0.750     0.792      1087
+weighted avg      0.866     0.791     0.823      1087
+
+
+================================================================
+
+Baseline performance of CRF on Malayalam train and Malayalam test dataset - 
+Weighted F1 of CRF = 0.8395
+              precision    recall  f1-score   support
+
+           1      0.926     0.842     0.882       311
+           2      0.897     0.910     0.904       268
+           3      0.885     0.664     0.759       128
+           4      0.810     0.810     0.810       100
+           5      0.927     0.683     0.786       186
+           6      0.815     0.550     0.657        40
+
+   micro avg      0.897     0.795     0.843      1033
+   macro avg      0.877     0.743     0.800      1033
+weighted avg      0.898     0.795     0.840      1033
+
+
+================================================================
+
+Sanskrit Baseline CRF on 200 Sanskrit train samples and 100 Sanskrit test samples - 
+Weighted F1 of CRF = 0.1761
+              precision    recall  f1-score   support
+
+           1      0.000     0.000     0.000        36
+           2      0.000     0.000     0.000        63
+           3      0.000     0.000     0.000        36
+           4      0.772     0.759     0.765        58
+           5      0.000     0.000     0.000        46
+           6      0.000     0.000     0.000        13
+
+   micro avg      0.537     0.175     0.263       252
+   macro avg      0.129     0.126     0.128       252
+weighted avg      0.178     0.175     0.176       252
+
+
+================================================================
+Performance of Hindi-CRF on Sanskrit script test samples - 
+Weighted F1 of CRF = 0.3361
+              precision    recall  f1-score   support
+
+           1      0.196     0.200     0.198       110
+           2      0.513     0.706     0.594       163
+           3      0.211     0.215     0.213       107
+           4      0.457     0.369     0.408       160
+           5      0.269     0.092     0.137       152
+           6      0.882     0.283     0.429        53
+
+   micro avg      0.386     0.333     0.357       745
+   macro avg      0.422     0.311     0.330       745
+weighted avg      0.388     0.333     0.336       745
+
+
+================================================================
+
+Performance of Telugu-CRF on Sanskrit script test samples - 
+Weighted F1 of CRF = 0.1807
+              precision    recall  f1-score   support
+
+           1      0.071     0.027     0.039       110
+           2      0.083     0.018     0.030       163
+           3      0.352     0.299     0.323       107
+           4      0.533     0.606     0.567       160
+           5      0.000     0.000     0.000       152
+           6      0.000     0.000     0.000        53
+
+   micro avg      0.373     0.181     0.244       745
+   macro avg      0.173     0.158     0.160       745
+weighted avg      0.194     0.181     0.181       745
+
+
+================================================================
+
+Performance of Malayalam-CRF on Sanskrit script test samples - 
+Weighted F1 of CRF = 0.2057
+              precision    recall  f1-score   support
+
+           1      0.078     0.055     0.064       110
+           2      0.191     0.055     0.086       163
+           3      0.418     0.262     0.322       107
+           4      0.575     0.625     0.599       160
+           5      0.333     0.007     0.013       152
+           6      0.000     0.000     0.000        53
+
+   micro avg      0.390     0.193     0.259       745
+   macro avg      0.266     0.167     0.181       745
+weighted avg      0.305     0.193     0.206       745
+
+
+================================================================
+Performance of Hindi-CRF on Sanskrit test samples transliterated to Hindi - 
+Weighted F1 of CRF = 0.3361
+              precision    recall  f1-score   support
+
+           1      0.196     0.200     0.198       110
+           2      0.513     0.706     0.594       163
+           3      0.211     0.215     0.213       107
+           4      0.457     0.369     0.408       160
+           5      0.269     0.092     0.137       152
+           6      0.882     0.283     0.429        53
+
+   micro avg      0.386     0.333     0.357       745
+   macro avg      0.422     0.311     0.330       745
+weighted avg      0.388     0.333     0.336       745
+
+
+================================================================
+
+Performance of Telugu-CRF on Sanskrit test samples transliterated to Telugu - 
+Weighted F1 of CRF = 0.3016
+              precision    recall  f1-score   support
+
+           1      0.324     0.200     0.247       110
+           2      0.563     0.301     0.392       163
+           3      0.368     0.299     0.330       107
+           4      0.541     0.575     0.558       160
+           5      0.222     0.026     0.047       152
+           6      0.500     0.019     0.036        53
+
+   micro avg      0.463     0.268     0.340       745
+   macro avg      0.420     0.237     0.268       745
+weighted avg      0.421     0.268     0.302       745
+
+
+================================================================
+
+Performance of Malayalam-CRF on Sanskrit test samples transliterated to Malayalam - 
+Weighted F1 of CRF = 0.2900
+              precision    recall  f1-score   support
+
+           1      0.240     0.218     0.229       110
+           2      0.536     0.227     0.319       163
+           3      0.389     0.262     0.313       107
+           4      0.598     0.650     0.623       160
+           5      0.333     0.013     0.025       152
+           6      1.000     0.019     0.037        53
+
+   micro avg      0.464     0.263     0.336       745
+   macro avg      0.516     0.231     0.258       745
+weighted avg      0.476     0.263     0.290       745
+
+
+================================================================
