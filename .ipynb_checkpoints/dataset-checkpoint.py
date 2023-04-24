@@ -99,7 +99,7 @@ def get_sent_len_dist(dataset, split='train', frac=1, seed=0):
     step = (mx - mn) // 10
     ax.xaxis.set_major_locator(plt.FixedLocator(np.arange(mn,mx+1,step)))
     ax.yaxis.set_major_formatter(matplotlib.ticker.EngFormatter())
-    ax.set(xlabel="Sentence Length", ylabel="Count")
+    ax.set(xlabel="Count", ylabel="Sentence Length")
     ax.set_title("Sentence Length Distribution")
     plt.show()
 
