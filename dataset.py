@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
 from datasets import load_dataset
-import string
+import string, os.path
+
+from utils import *
 
 import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from indicnlp.transliterate.unicode_transliterate import UnicodeIndicTransliterator as UIT
 from indicnlp.langinfo import *
 articulations_func = {
     "Dental": is_dental,
@@ -26,35 +29,43 @@ phonetics_func = {
     "Consonant": is_consonant
 }
 
-def get_dataset(dataset, language, re_download=False, clean_cache=False):
+def get_dataset(dataset, lang, use_pickle=True, re_download=False, clean_cache=False):
     """
         Wrapper to prepare datasets for 'ai4bharat/naamapadam' and
         'wikiann' datasets for a given language code
         Returns dictionary of dataset with train, test and val splits
         Each split is a dataframe with two columns - tokens and ner_tags
     """
-    if not re_download:
-        ds = load_dataset(dataset, language)
+    fname = "./pickles/{0}_ds.pickle".format(lang)
+    if not re_download and use_pickle and os.path.isfile(fname):
+        data = load_pickle(fname)
     else:
-        ds = load_dataset(dataset, language, download_mode='force_redownload')
+        if not re_download:
+            ds = load_dataset(dataset, lang)
+        else:
+            ds = load_dataset(dataset, lang, download_mode='force_redownload')
+        
+        data = {}
+        data["train"] = pd.DataFrame(ds['train'])
+        data["test"] = pd.DataFrame(ds['test'])
+        data["val"] = pd.DataFrame(ds['validation'])
 
-    data = {}
-    data["train"] = pd.DataFrame(ds['train'])
-    data["test"] = pd.DataFrame(ds['test'])
-    data["val"] = pd.DataFrame(ds['validation'])
+        # Drop extra columns from 'Wikiann' dataset
+        if dataset == "wikiann":
+            for k in data.keys():
+                data[k].drop(labels=["langs", "spans"], axis=1, inplace=True)
 
-    # Drop extra columns from 'Wikiann' dataset
-    if dataset == "wikiann":
+        # Remove empty instances if any
         for k in data.keys():
-            data[k].drop(labels=["langs", "spans"], axis=1, inplace=True)
+            miss_idx = np.arange(data[k].shape[0])[data[k]['tokens'].apply(lambda x: x == [])]
+            data[k].drop(miss_idx, axis=0, inplace=True)
+        
+        if use_pickle:
+            save_pickle(fname, data)
 
-    # Remove empty instances if any
-    for k in data.keys():
-        miss_idx = np.arange(data[k].shape[0])[data[k]['tokens'].apply(lambda x: x == [])]
-        data[k].drop(miss_idx, axis=0, inplace=True)
+        if clean_cache:
+            ds.cleanup_cache_files()
 
-    if clean_cache:
-        ds.cleanup_cache_files()
     return data
 
 def clean_dataset_cache(dataset, language):
@@ -64,6 +75,21 @@ def clean_dataset_cache(dataset, language):
     ds = load_dataset(dataset, language)
     ds.cleanup_cache_files()
     del ds
+
+def combine_dataset_splits(dataset, splits):
+    """
+        Combine the specified splits of the dataset
+    """
+    res = pd.concat([dataset[s] for s in splits], axis=0, ignore_index=True)
+    return res
+
+def transliterate_dataset(dataset, src_lang, tgt_lang):
+    trans_dataset = {}
+    for k, df in dataset.items():
+        res_df = df.copy(deep=True)
+        res_df['tokens'] = res_df.apply(lambda x: [UIT.transliterate(t, src_lang, tgt_lang) for t in x['tokens']], axis=1)
+        trans_dataset[k] = res_df
+    return trans_dataset
 
 def dataset_stats(dataset):
     """
@@ -99,8 +125,9 @@ def get_sent_len_dist(dataset, split='train', frac=1, seed=0):
     step = (mx - mn) // 10
     ax.xaxis.set_major_locator(plt.FixedLocator(np.arange(mn,mx+1,step)))
     ax.yaxis.set_major_formatter(matplotlib.ticker.EngFormatter())
-    ax.set(xlabel="Sentence Length", ylabel="Count")
+    ax.set(xlabel="Count", ylabel="Sentence Length")
     ax.set_title("Sentence Length Distribution")
+    fig.tight_layout()
     plt.show()
 
 def get_len_ner_corr(dataset, len_limit=10, split='train', explode=True, frac=1, seed=0):
@@ -109,11 +136,11 @@ def get_len_ner_corr(dataset, len_limit=10, split='train', explode=True, frac=1,
         token length (till len_limit)
     """
     if explode:
-        df = dataset[split].explode(['tokens', 'ner_tags'], ignore_index=True)
+        df = dataset[split].sample(frac=frac, random_state=seed)
+        df = df.explode(['tokens', 'ner_tags'], ignore_index=True)
     else:
         df = dataset.copy(deep=True)
-        if frac < 1:
-            df = df.sample(frac=frac, random_state=seed)
+        df = df.sample(frac=frac, random_state=seed)
     df['len'] = df.apply(lambda x: len(x['tokens']), axis=1)
     df['is_ner'] = (df['ner_tags'] > 0).astype(int)
     cnt_df = df[['len','is_ner']].groupby('len', as_index=False).value_counts()
@@ -124,6 +151,7 @@ def get_len_ner_corr(dataset, len_limit=10, split='train', explode=True, frac=1,
     ax.yaxis.set_major_formatter(matplotlib.ticker.EngFormatter())
     ax.legend(handles=ax.get_legend().legendHandles, title="Is Named Entity?", labels=["No", "Yes"])
     ax.set_title("Correlation between Word Length and NER tags")
+    fig.tight_layout()
     plt.show()
 
 def get_linguistic_ner_corr(dataset, lang, linguistic_type=0, split='train', explode=True, frac=1, seed=0):
@@ -132,11 +160,11 @@ def get_linguistic_ner_corr(dataset, lang, linguistic_type=0, split='train', exp
         linguistic features (phonetics or articulation based)
     """
     if explode:
-        df = dataset[split].explode(['tokens', 'ner_tags'], ignore_index=True)
+        df = dataset[split].sample(frac=frac, random_state=seed)
+        df = df.explode(['tokens', 'ner_tags'], ignore_index=True)
     else:
         df = dataset.copy(deep=True)
-        if frac < 1:
-            df = df.sample(frac=frac, random_state=seed)
+        df = df.sample(frac=frac, random_state=seed)
     df['is_ner'] = (df['ner_tags'] > 0).astype(int)
     linguistic_type = 'Phonetic' if linguistic_type == 0 else 'Articulation'
     func_dict = phonetics_func if linguistic_type == 'Phonetic' else articulations_func
@@ -160,6 +188,7 @@ def get_linguistic_ner_corr(dataset, lang, linguistic_type=0, split='train', exp
     ax.yaxis.set_major_formatter(matplotlib.ticker.EngFormatter())
     ax.legend(title="Is Named Entity?")         # bbox_to_anchor=(1, 1, 0, 0)
     ax.set_title("Correlation between {0} Types and NER tags".format(linguistic_type))
+    fig.tight_layout()
     plt.show()
 
 def get_punctuation_ner_corr(dataset, split='train', explode=True, frac=1, seed=0):
@@ -168,11 +197,11 @@ def get_punctuation_ner_corr(dataset, split='train', explode=True, frac=1, seed=
         punctuation positions
     """
     if explode:
-        df = dataset[split].explode(['tokens', 'ner_tags'], ignore_index=True)
+        df = dataset[split].sample(frac=frac, random_state=seed)
+        df = df.explode(['tokens', 'ner_tags'], ignore_index=True)
     else:
         df = dataset.copy(deep=True)
-        if frac < 1:
-            df = df.sample(frac=frac, random_state=seed)
+        df = df.sample(frac=frac, random_state=seed)
     df['is_ner'] = (df['ner_tags'] > 0).astype(int)
     df['punc'] = df.apply(lambda x: 1 if x['tokens'] in string.punctuation else 0, axis=1)
     df.loc[(df.index > 0), 'Prefix'] = df['punc'].to_list()[:-1]
@@ -198,8 +227,9 @@ def get_punctuation_ner_corr(dataset, split='train', explode=True, frac=1, seed=
     ax = sns.barplot(data=res_df, x='type', y='count', hue='key', palette='deep', ax=ax)
     ax.set(xlabel="Punctuation Position", ylabel="Count")
     ax.yaxis.set_major_formatter(matplotlib.ticker.EngFormatter())
-    ax.legend(title="Is Punctuation? Is Named Entity?", bbox_to_anchor=(1, 1, 0, 0))
+    ax.legend(title="Is Punctuation?\nIs Named Entity?", bbox_to_anchor=(1, 1, 0, 0))
     ax.set_title("Correlation between Punctuation Position and NER tags")
+    fig.tight_layout()
     plt.show()
 
 def get_relpos_ner_corr(dataset, split='train', frac=1, seed=0):
@@ -218,6 +248,27 @@ def get_relpos_ner_corr(dataset, split='train', frac=1, seed=0):
     ax.yaxis.set_major_formatter(matplotlib.ticker.EngFormatter())
     ax.set(xlabel="Relative Position", ylabel="Count")
     ax.set_title("Distribution of Position of Occurence of Named Entities")
+    fig.tight_layout()
     plt.show()
 
-# https://www.kaggle.com/code/trunganhdinh/hidden-markov-model-for-pos-tagging
+if __name__ == "__main__":
+    hi_ds = get_dataset("ai4bharat/naamapadam", "hi", use_pickle=True)
+    # te_ds = get_dataset("ai4bharat/naamapadam", "te", use_pickle=True)
+    # ml_ds = get_dataset("ai4bharat/naamapadam", "ml", use_pickle=True)
+    # sa_ds = get_dataset("wikiann", "sa", use_pickle=True)
+
+    dataset = hi_ds
+    lang = 'hi'
+    split = 'train'
+    frac = 1
+    seed = 0
+    len_limit = 10  # Used for Word Length vs NE correlation plots
+
+    print(dataset_stats(dataset))
+
+    get_sent_len_dist(dataset, split=split, frac=frac, seed=seed)
+    get_len_ner_corr(dataset, len_limit=len_limit, split=split, frac=frac, seed=seed)
+    get_linguistic_ner_corr(dataset, lang=lang, linguistic_type=0, split=split, frac=frac, seed=seed)
+    get_linguistic_ner_corr(dataset, lang=lang, linguistic_type=1, split=split, frac=frac, seed=seed)
+    get_punctuation_ner_corr(dataset, split=split, frac=frac, seed=seed)
+    get_relpos_ner_corr(dataset, split=split, frac=frac, seed=seed)
