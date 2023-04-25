@@ -142,7 +142,7 @@ if __name__ == "__main__":
         if lang == tgt_lang:
             continue
 
-        print("{0} language HMM model evaluated on Sanskrit language without transliteration".format(lang, tgt_lang))
+        print("{0} language HMM model evaluated on {1} language without transliteration".format(lang, tgt_lang))
         train_dataset = ds['train']
         test_dataset = combine_dataset_splits(datasets[tgt_lang], ['val', 'test'])
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         if lang == tgt_lang:
             continue
 
-        print("{0} language HMM model evaluated on Sanskrit language with transliteration".format(lang, tgt_lang))
+        print("{0} language HMM model evaluated on {1} language with transliteration".format(lang, tgt_lang))
         train_dataset = ds['train']
         trans_dataset = transliterate_dataset(datasets[tgt_lang], lang_codes[tgt_lang], lang_codes[lang])
         test_dataset = combine_dataset_splits(trans_dataset, ['val', 'test'])
