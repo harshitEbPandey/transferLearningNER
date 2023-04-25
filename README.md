@@ -12,7 +12,8 @@ Allows for easy transfer learning in multi-language setting with much less resou
 
 Hindi Dataset Stats - 
 
-	    Tokens	  UniqueTokens	UnknownTokens    Tag=0	   Tag=1	   Tag=2	  Tag=3	   Tag=4	 Tag=5	 Tag=6
-train	22029408	    378006	        0	       18099478	  767003	  712403	 686388	  825713	731183	207240
-test	8405	          2889	       63	           6996	     263	     239	    257	     253	   302	    95
-val	  304282	       28369	     2897	         249634	   10549	    9870	   9735	   11506	 10209	  2779
+|split	 |   Tokens	 | UniqueTokens	| UnknownTokens  |  Tag=0	|    Tag=1	|   Tag=2	|  Tag=3	|   Tag=4	| Tag=5	| Tag=6 |
+|--------|-----------|--------------|----------------|----------|-----------|-----------|-----------|-----------|-------|-------|
+|train	 | 22029408	 |       378006 |        	0	|18099478 |	767003	|  712403	| 686388	|  825713	| 731183	| 207240 |
+|test	 |     8405	 |         2889	|      	   63	|    6996	|   263	|     239	|    257 	|   253	|   302	   | 95 |
+|val	     |	304282	 |        28369	|     	 2897	|  249634	| 10549	|    9870	|   9735	|   11506 |	 10209	|  2779 |
